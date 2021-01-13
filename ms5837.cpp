@@ -49,15 +49,20 @@ void MS5837::read() {
 	// sendBuf[0] = MS5837_CONVERT_D1_8192;
 	sendBuf[0] = MS5837_CONVERT_D1_2048;
 	if((errCode = bcm2835_i2c_write(sendBuf,1)))
-		printf("bcm2835_i2c_write failed at %s%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
+	{
+		printf("bcm2835_i2c_write failed at %s:%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
+		return;
+	}
 
 	// bcm_2835_delay(20); // Max conversion time per datasheet
 	bcm2835_delay(5);  // When OSR = 2048, wait MS5837 converts, need 5ms
 	
 	sendBuf[0] = MS5837_ADC_READ;
 	if((errCode = bcm2835_i2c_write_read_rs(sendBuf,1,recvBuf,3)))
-		printf("bcm2835_i2c_write_read_rs failed at %s%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
-
+	{
+		printf("bcm2835_i2c_write_read_rs failed at %s:%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
+		return;
+	}
 	D1 = 0;
 	D1 = recvBuf[0];
 	D1 = (D1 << 8) | recvBuf[1];
@@ -67,15 +72,19 @@ void MS5837::read() {
 	//sendBuf[0] = MS5837_CONVERT_D2_8192;
 	sendBuf[0] = MS5837_CONVERT_D2_2048;
 	if((errCode = bcm2835_i2c_write(sendBuf,1)))
-		printf("bcm2835_i2c_write failed at %s%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
-
+	{
+		printf("bcm2835_i2c_write failed at %s:%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
+		return;
+	}
 	//bcm_2835_delay(20); // Max conversion time per datasheet
 	bcm2835_delay(5);  // When OSR = 2048, wait MS5837 converts, need 5ms
 	
 	sendBuf[0] = MS5837_ADC_READ;
 	if((errCode = bcm2835_i2c_write_read_rs(sendBuf,1,recvBuf,3)))
-		printf("bcm2835_i2c_write_read_rs failed at %s%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
-
+	{
+		printf("bcm2835_i2c_write_read_rs failed at %s:%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
+		return;
+	}
 	D2 = 0;
 	D2 = recvBuf[0];
 	D2 = (D2 << 8) | recvBuf[1];
@@ -184,7 +193,7 @@ bool MS5837::init() {
 	printf("Init...\n");
 	if(!bcm2835_i2c_begin())
 	{
-		printf("bcm2835 i2c begin failed at %s%d\n",__FILE__,__LINE__);
+		printf("bcm2835 i2c begin failed at %s:%d\n",__FILE__,__LINE__);
 		exit(-1);
 	}
 	bcm2835_i2c_setSlaveAddress(MS5837_ADDR);
@@ -193,7 +202,7 @@ bool MS5837::init() {
 	sendBuf[0] = MS5837_RESET;
 	// Reset the MS5837, per datasheet
 	if((errCode = bcm2835_i2c_write(sendBuf,1)))
-		printf("bcm2835_i2c_write failed at %s%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
+		printf("bcm2835_i2c_write failed at %s:%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
 
 	// Wait for reset to complete
 	bcm2835_delay(10);
@@ -202,7 +211,7 @@ bool MS5837::init() {
 	for ( uint8_t i = 0 ; i < 7 ; i++ ) {
 		sendBuf[0] = MS5837_PROM_READ+i*2;
 		if((errCode =bcm2835_i2c_write_read_rs(sendBuf,1,recvBuf,2)))
-			printf("bcm2835_i2c_write_read_rs failed at %s%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
+			printf("bcm2835_i2c_write_read_rs failed at %s:%d, errCode = 0x%x\n",__FILE__,__LINE__,errCode);
 		C[i] = (recvBuf[0]<<8) | recvBuf[1];
 	}
 
